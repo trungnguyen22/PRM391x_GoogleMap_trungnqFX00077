@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableStart="@drawable/map_marker_distance"
-            android:text="10.5km"
+            android:text="@string/distance"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Title" />
 
         <TextView
@@ -83,11 +83,23 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableStart="@drawable/ic_access_time_black_24dp"
-            android:text="15 min"
+            android:text="@string/travel_time"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Title" />
 
 
     </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/mMyLocationBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_my_location_black_24dp"
+        app:backgroundTint="@android:color/white"
+        app:rippleColor="@color/colorAccent"
+        app:useCompatPadding="true"
+        tools:ignore="ContentDescription" />
 
 
 </RelativeLayout>
