@@ -4,7 +4,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -15,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -29,7 +34,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.IOException;
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.app.john.prm391x_googlemap_trungnqfx00077.Constants.MY_PERMISSIONS_REQUEST_LOCATION;
 
@@ -42,7 +60,12 @@ public class MapsActivity extends FragmentActivity
     SupportPlaceAutocompleteFragment mInputTo;
 
     Place mFromPlace;
+    String[] mFromCoord;
+    LatLng mFromLatLng;
+
     Place mToPlace;
+    String[] mToCoord;
+    LatLng mToLatLng;
 
     Button mDirectionBtn;
     TextView mDistanceTV;
@@ -96,6 +119,10 @@ public class MapsActivity extends FragmentActivity
                 @Override
                 public void onPlaceSelected(Place place) {
                     mFromPlace = place;
+                    mFromLatLng = mFromPlace.getLatLng();
+                    mFromCoord = new String[2];
+                    mFromCoord[0] = String.valueOf(mFromPlace.getLatLng().latitude);
+                    mFromCoord[1] = String.valueOf(mFromPlace.getLatLng().longitude);
                 }
 
                 @Override
@@ -112,6 +139,10 @@ public class MapsActivity extends FragmentActivity
                 @Override
                 public void onPlaceSelected(Place place) {
                     mToPlace = place;
+                    mToLatLng = mToPlace.getLatLng();
+                    mToCoord = new String[2];
+                    mToCoord[0] = String.valueOf(mToPlace.getLatLng().latitude);
+                    mToCoord[1] = String.valueOf(mToPlace.getLatLng().longitude);
                 }
 
                 @Override
@@ -225,7 +256,18 @@ public class MapsActivity extends FragmentActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.mDirectionBtn:
-                // TODO: Call API get direction
+                if (isOnline()) {
+                    String url = createDirectionURL();
+                    DontKnowHowToNameIt dontKnowHowToNameIt = new DontKnowHowToNameIt();
+                    dontKnowHowToNameIt
+                            .execute(url);
+                } else {
+                    Toast.makeText(
+                            this,
+                            "Networking is not available",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
                 break;
             case R.id.mMyLocationBtn:
                 focusOnMyLocation(mMyLocation);
@@ -233,4 +275,81 @@ public class MapsActivity extends FragmentActivity
         }
     }
 
+    private String createDirectionURL() {
+        return Constants.DIRECTION_URL
+                + Constants.PARAM_ORIGIN + mFromCoord[0] + ", " + mFromCoord[1] + "&"
+                + Constants.PARAM_DESTINATION + mToCoord[0] + ", " + mToCoord[1] + "&"
+                + Constants.PARAM_KEY + getString(R.string.browse_google);
+    }
+
+    /**
+     * Source: https://developer.android.com/training/basics/network-ops/managing
+     *
+     * @return whether network is available or not
+     */
+    public boolean isOnline() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
+
+    private class DontKnowHowToNameIt extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... url) {
+            OkHttpClient okHttpClient = new OkHttpClient();
+            Request request = new Request.Builder().url(url[0]).build();
+            Response response = null;
+            try {
+                response = okHttpClient.newCall(request).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (response != null && response.isSuccessful()) {
+                if (response.body() != null) {
+                    try {
+                        return response.body().string();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return "Failed";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.d("onPostExecute: ", s);
+
+            JsonObject jsDirection = new JsonParser().parse(s).getAsJsonObject();
+            JsonObject firstRoute = (JsonObject) jsDirection.getAsJsonArray(Constants.MEMBER_ROUTES).get(0);
+            String points = firstRoute.getAsJsonObject("overview_polyline").get("points").getAsString();
+            //
+            JsonArray legs = firstRoute.getAsJsonArray("legs");
+            JsonObject legsFirstChild = (JsonObject) legs.get(0);
+            String distance = legsFirstChild.getAsJsonObject("distance").get("text").getAsString();
+            String duration = legsFirstChild.getAsJsonObject("duration").get("text").getAsString();
+
+            // Log for testing
+            Log.d("onPostExecute: ", points);
+            Log.d("onPostExecute: ", distance);
+            Log.d("onPostExecute: ", duration);
+
+            List<LatLng> decodedPath = PolyUtil.decode(points);
+            mMap.addPolyline(new PolylineOptions()
+                    .color(Color.BLUE)
+                    .addAll(decodedPath));
+            mMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(mFromPlace.getLatLng().latitude, mFromPlace.getLatLng().longitude),
+                            16f)
+            );
+
+            mMap.addMarker(new MarkerOptions().position(mFromLatLng));
+            mMap.addMarker(new MarkerOptions().position(mToLatLng));
+
+            mDistanceTV.setText(distance);
+            mTimeRouteTV.setText(duration);
+        }
+    }
 }
