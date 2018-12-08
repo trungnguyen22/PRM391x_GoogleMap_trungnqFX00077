@@ -2,6 +2,7 @@ package com.app.john.prm391x_googlemap_trungnqfx00077;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -16,6 +17,8 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -114,7 +117,7 @@ public class MapsActivity extends FragmentActivity
 
         mInputFrom = (SupportPlaceAutocompleteFragment) getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment_from);
         if (mInputFrom != null) {
-            mInputFrom.setHint("From");
+            mInputFrom.setHint("Origin");
             mInputFrom.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(Place place) {
@@ -134,7 +137,7 @@ public class MapsActivity extends FragmentActivity
 
         mInputTo = (SupportPlaceAutocompleteFragment) getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment_to);
         if (mInputTo != null) {
-            mInputTo.setHint("To");
+            mInputTo.setHint("Destination");
             mInputTo.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(Place place) {
@@ -257,16 +260,26 @@ public class MapsActivity extends FragmentActivity
         switch (v.getId()) {
             case R.id.mDirectionBtn:
                 if (isOnline()) {
-                    String url = createDirectionURL();
-                    DontKnowHowToNameIt dontKnowHowToNameIt = new DontKnowHowToNameIt();
-                    dontKnowHowToNameIt
-                            .execute(url);
+                    if (mFromPlace != null && mToPlace != null) {
+                        String url = createDirectionURL();
+                        DontKnowHowToNameIt dontKnowHowToNameIt = new DontKnowHowToNameIt();
+                        dontKnowHowToNameIt
+                                .execute(url);
+                    } else {
+                        /*Toast.makeText(
+                                this,
+                                "Please choose origin place and destination place.",
+                                Toast.LENGTH_LONG
+                        ).show();*/
+                        showCustomAlert("Please choose origin place and destination place.");
+                    }
                 } else {
-                    Toast.makeText(
+                    /*Toast.makeText(
                             this,
                             "Networking is not available",
                             Toast.LENGTH_LONG
-                    ).show();
+                    ).show();*/
+                    showCustomAlert("Networking is not available");
                 }
                 break;
             case R.id.mMyLocationBtn:
@@ -319,6 +332,8 @@ public class MapsActivity extends FragmentActivity
 
         @Override
         protected void onPostExecute(String s) {
+            mMap.clear();
+
             Log.d("onPostExecute: ", s);
 
             JsonObject jsDirection = new JsonParser().parse(s).getAsJsonObject();
@@ -351,5 +366,24 @@ public class MapsActivity extends FragmentActivity
             mDistanceTV.setText(distance);
             mTimeRouteTV.setText(duration);
         }
+    }
+
+    public void showCustomAlert(String message) {
+        Context context = getApplicationContext();
+
+        LayoutInflater inflater = getLayoutInflater();
+
+        View viewToast = inflater.inflate(R.layout.my_custom_toast_layout, null);
+        TextView toastMessageTV = viewToast.findViewById(R.id.mMyCustomToast_MessageTV);
+        toastMessageTV.setText(message);
+
+        Toast toast = new Toast(context);
+
+        // Set layout to toast
+        toast.setView(viewToast);
+        toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL,
+                0, 0);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.show();
     }
 }
