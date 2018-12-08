@@ -265,19 +265,9 @@ public class MapsActivity extends FragmentActivity
                         dontKnowHowToNameIt
                                 .execute(url);
                     } else {
-                        /*Toast.makeText(
-                                this,
-                                "Please choose origin place and destination place.",
-                                Toast.LENGTH_LONG
-                        ).show();*/
                         showCustomAlert("Please choose origin place and destination place.");
                     }
                 } else {
-                    /*Toast.makeText(
-                            this,
-                            "Networking is not available",
-                            Toast.LENGTH_LONG
-                    ).show();*/
                     showCustomAlert("Networking is not available");
                 }
                 break;
@@ -336,13 +326,13 @@ public class MapsActivity extends FragmentActivity
             Log.d("onPostExecute: ", s);
 
             JsonObject jsDirection = new JsonParser().parse(s).getAsJsonObject();
-            JsonObject firstRoute = (JsonObject) jsDirection.getAsJsonArray(Constants.MEMBER_ROUTES).get(0);
-            String points = firstRoute.getAsJsonObject("overview_polyline").get("points").getAsString();
+            JsonObject firstRoute = (JsonObject) jsDirection.getAsJsonArray(Constants.DIRECTION_MEMBER_ROUTES).get(0);
+            String points = firstRoute.getAsJsonObject(Constants.DIRECTION_MEMBER_OVERVIEW_POLYLINE).get(Constants.DIRECTION_MEMBER_POINTS).getAsString();
             //
-            JsonArray legs = firstRoute.getAsJsonArray("legs");
+            JsonArray legs = firstRoute.getAsJsonArray(Constants.DIRECTION_MEMBER_LEGS);
             JsonObject legsFirstChild = (JsonObject) legs.get(0);
-            String distance = legsFirstChild.getAsJsonObject("distance").get("text").getAsString();
-            String duration = legsFirstChild.getAsJsonObject("duration").get("text").getAsString();
+            String distance = legsFirstChild.getAsJsonObject(Constants.DIRECTION_MEMBER_DISTANCE).get(Constants.DIRECTION_MEMBER_TEXT).getAsString();
+            String duration = legsFirstChild.getAsJsonObject(Constants.DIRECTION_MEMBER_DURATION).get(Constants.DIRECTION_MEMBER_TEXT).getAsString();
 
             // Log for testing
             Log.d("onPostExecute: ", points);

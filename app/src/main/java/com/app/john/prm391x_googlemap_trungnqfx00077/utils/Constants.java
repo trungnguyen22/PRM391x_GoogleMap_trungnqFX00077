@@ -19,6 +19,14 @@ public class Constants {
     public static String PARAM_KEY = "key=";
     public static String DIRECTION_URL = "https://maps.googleapis.com/maps/api/directions/json?";
 
-    public static String MEMBER_ROUTES = "routes";
+    public static String DIRECTION_MEMBER_ROUTES = "routes";
+    public static String DIRECTION_MEMBER_DISTANCE = "distance";
+    public static String DIRECTION_MEMBER_OVERVIEW_POLYLINE = "overview_polyline";
+    public static String DIRECTION_MEMBER_POINTS = "points";
+    public static String DIRECTION_MEMBER_DURATION = "duration";
+    public static String DIRECTION_MEMBER_LEGS = "legs";
+    public static String DIRECTION_MEMBER_TEXT = "text";
+
+
 
 }
