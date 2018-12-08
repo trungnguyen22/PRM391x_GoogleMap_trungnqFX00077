@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.app.john.prm391x_googlemap_trungnqfx00077;
+package com.app.john.prm391x_googlemap_trungnqfx00077.utils;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.EARTH_RADIUS;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.arcHav;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.havDistance;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.wrap;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.EARTH_RADIUS;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.arcHav;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.havDistance;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.wrap;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.asin;

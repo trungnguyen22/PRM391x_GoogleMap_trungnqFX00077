@@ -1,4 +1,4 @@
-package com.app.john.prm391x_googlemap_trungnqfx00077;
+package com.app.john.prm391x_googlemap_trungnqfx00077.utils;
 
 public class Constants {
 

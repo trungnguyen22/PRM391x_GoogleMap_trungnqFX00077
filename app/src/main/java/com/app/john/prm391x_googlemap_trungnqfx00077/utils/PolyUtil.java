@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.john.prm391x_googlemap_trungnqfx00077;
+package com.app.john.prm391x_googlemap_trungnqfx00077.utils;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -22,17 +22,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.EARTH_RADIUS;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.clamp;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.hav;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.havDistance;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.havFromSin;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.inverseMercator;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.mercator;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.sinFromHav;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.sinSumFromHav;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.MathUtil.wrap;
-import static com.app.john.prm391x_googlemap_trungnqfx00077.SphericalUtil.computeDistanceBetween;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.EARTH_RADIUS;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.clamp;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.hav;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.havDistance;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.havFromSin;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.inverseMercator;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.mercator;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.sinFromHav;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.sinSumFromHav;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.MathUtil.wrap;
+import static com.app.john.prm391x_googlemap_trungnqfx00077.utils.SphericalUtil.computeDistanceBetween;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.max;

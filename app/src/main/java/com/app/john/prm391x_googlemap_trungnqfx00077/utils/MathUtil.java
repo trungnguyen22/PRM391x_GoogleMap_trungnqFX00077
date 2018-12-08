@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.app.john.prm391x_googlemap_trungnqfx00077;
+package com.app.john.prm391x_googlemap_trungnqfx00077.utils;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.asin;
@@ -42,9 +42,10 @@ class MathUtil {
     static double clamp(double x, double low, double high) {
         return x < low ? low : (x > high ? high : x);
     }
-    
+
     /**
      * Wraps the given value into the inclusive-exclusive interval between min and max.
+     *
      * @param n   The value to wrap.
      * @param min The minimum.
      * @param max The maximum.
@@ -55,6 +56,7 @@ class MathUtil {
 
     /**
      * Returns the non-negative remainder of x / m.
+     *
      * @param x The operand.
      * @param m The modulus.
      */
@@ -67,7 +69,7 @@ class MathUtil {
      * See http://en.wikipedia.org/wiki/Mercator_projection .
      */
     static double mercator(double lat) {
-        return log(tan(lat * 0.5 + PI/4));
+        return log(tan(lat * 0.5 + PI / 4));
     }
 
     /**
@@ -76,7 +78,7 @@ class MathUtil {
     static double inverseMercator(double y) {
         return 2 * atan(exp(y)) - PI / 2;
     }
-    
+
     /**
      * Returns haversine(angle-in-radians).
      * hav(x) == (1 - cos(x)) / 2 == sin(x / 2)^2.
@@ -94,7 +96,7 @@ class MathUtil {
     static double arcHav(double x) {
         return 2 * asin(sqrt(x));
     }
-    
+
     // Given h==hav(x), returns sin(abs(x)).
     static double sinFromHav(double h) {
         return 2 * sqrt(h * (1 - h));
