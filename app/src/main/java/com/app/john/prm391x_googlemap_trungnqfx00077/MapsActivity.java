@@ -152,7 +152,6 @@ public class MapsActivity extends FragmentActivity
         }
 
 
-
         mInputTo = (SupportPlaceAutocompleteFragment) getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment_to);
         if (mInputTo != null) {
             mInputTo.setHint(getString(R.string.destination));
