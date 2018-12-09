@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -16,15 +18,18 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.john.prm391x_googlemap_trungnqfx00077.utils.Constants;
+import com.app.john.prm391x_googlemap_trungnqfx00077.utils.DeviceDimensionsHelper;
 import com.app.john.prm391x_googlemap_trungnqfx00077.utils.PolyUtil;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,6 +41,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -114,9 +120,13 @@ public class MapsActivity extends FragmentActivity
         mDistanceTV = findViewById(R.id.mDistanceTV);
         mTimeRouteTV = findViewById(R.id.mTimeRouteTV);
 
+        initPlaceAutoComplete();
+    }
+
+    private void initPlaceAutoComplete() {
         mInputFrom = (SupportPlaceAutocompleteFragment) getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment_from);
         if (mInputFrom != null) {
-            mInputFrom.setHint("Origin");
+            mInputFrom.setHint(getString(R.string.origin));
             mInputFrom.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(Place place) {
@@ -132,11 +142,20 @@ public class MapsActivity extends FragmentActivity
                     Log.d("mInputFrom: ", status.getStatusMessage());
                 }
             });
+
+            mInputFrom.getView().findViewById(R.id.place_autocomplete_clear_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clearOriginInput();
+                }
+            });
         }
+
+
 
         mInputTo = (SupportPlaceAutocompleteFragment) getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment_to);
         if (mInputTo != null) {
-            mInputTo.setHint("Destination");
+            mInputTo.setHint(getString(R.string.destination));
             mInputTo.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(Place place) {
@@ -152,7 +171,28 @@ public class MapsActivity extends FragmentActivity
                     Log.d("mInputTo: ", status.getStatusMessage());
                 }
             });
+
+            mInputTo.getView().findViewById(R.id.place_autocomplete_clear_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clearDesInput();
+                }
+            });
         }
+    }
+
+    private void clearOriginInput() {
+        mInputFrom.setText("");
+        mFromPlace = null;
+        mFromLatLng = null;
+        mFromCoord = null;
+    }
+
+    private void clearDesInput() {
+        mInputTo.setText("");
+        mToPlace = null;
+        mToLatLng = null;
+        mToCoord = null;
     }
 
     private void requestLocationPermission() {
@@ -214,6 +254,7 @@ public class MapsActivity extends FragmentActivity
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, 15f));
         mMap.addMarker(new MarkerOptions()
                 .title("Your location")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.dot_current_location))
                 .position(lastLatLng));
     }
 
@@ -261,7 +302,7 @@ public class MapsActivity extends FragmentActivity
                 if (isOnline()) {
                     if (mFromPlace != null && mToPlace != null) {
                         String url = createDirectionURL();
-                        DontKnowHowToNameIt dontKnowHowToNameIt = new DontKnowHowToNameIt();
+                        FindDirectionAsyncTask dontKnowHowToNameIt = new FindDirectionAsyncTask();
                         dontKnowHowToNameIt
                                 .execute(url);
                     } else {
@@ -296,7 +337,7 @@ public class MapsActivity extends FragmentActivity
         return (networkInfo != null && networkInfo.isConnected());
     }
 
-    private class DontKnowHowToNameIt extends AsyncTask<String, Void, String> {
+    private class FindDirectionAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... url) {
             OkHttpClient okHttpClient = new OkHttpClient();
@@ -328,7 +369,7 @@ public class MapsActivity extends FragmentActivity
             JsonObject jsDirection = new JsonParser().parse(s).getAsJsonObject();
             JsonObject firstRoute = (JsonObject) jsDirection.getAsJsonArray(Constants.DIRECTION_MEMBER_ROUTES).get(0);
             String points = firstRoute.getAsJsonObject(Constants.DIRECTION_MEMBER_OVERVIEW_POLYLINE).get(Constants.DIRECTION_MEMBER_POINTS).getAsString();
-            //
+
             JsonArray legs = firstRoute.getAsJsonArray(Constants.DIRECTION_MEMBER_LEGS);
             JsonObject legsFirstChild = (JsonObject) legs.get(0);
             String distance = legsFirstChild.getAsJsonObject(Constants.DIRECTION_MEMBER_DISTANCE).get(Constants.DIRECTION_MEMBER_TEXT).getAsString();
@@ -349,12 +390,40 @@ public class MapsActivity extends FragmentActivity
                             16f)
             );
 
-            mMap.addMarker(new MarkerOptions().position(mFromLatLng));
-            mMap.addMarker(new MarkerOptions().position(mToLatLng));
+            mMap.addMarker(new MarkerOptions()
+                    .title(mFromPlace.getName().toString())
+                    .icon(BitmapDescriptorFactory.fromBitmap(createBitMapMarker("A")))
+                    .position(mFromLatLng));
+
+            mMap.addMarker(new MarkerOptions()
+                    .title(mToPlace.getName().toString())
+                    .icon(BitmapDescriptorFactory.fromBitmap(createBitMapMarker("B")))
+                    .position(mToLatLng));
 
             mDistanceTV.setText(distance);
             mTimeRouteTV.setText(duration);
         }
+    }
+
+    private Bitmap createBitMapMarker(String text) {
+        View view = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                .inflate(R.layout.marker_layout, null);
+        TextView mMarkerTV = view.findViewById(R.id.mMarkerTV);
+        mMarkerTV.setText(text);
+
+        int width = DeviceDimensionsHelper.convertDpToPixel(34, this);
+        int height = DeviceDimensionsHelper.convertDpToPixel(47, this);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(),
+                view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
     }
 
     public void showCustomAlert(String message) {

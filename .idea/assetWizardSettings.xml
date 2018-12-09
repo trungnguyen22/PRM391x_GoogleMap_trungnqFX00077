@@ -28,8 +28,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_my_location_black_24dp" />
-                            <entry key="sourceFile" value="C:\Users\DELL\Downloads\placeholder.svg" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="ic_blue_dot" />
+                            <entry key="sourceFile" value="C:\Users\DELL\Desktop\ic_blue_dot.svg" />
                           </map>
                         </option>
                       </PersistentState>
